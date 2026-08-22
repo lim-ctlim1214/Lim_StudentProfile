@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, please refer to the docs:
+            https://cordova.apache.org/docs/en/latest/
+        Some notes:
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <link rel="stylesheet" href="css/index.css">
+        <title>Cedric Lim's Student Profile</title>
+    </head>
+    <body>
+    <div class="app">
+        <div class="header">
+            <img class="avatar"
+                 src="assets/pfp.jpg" alt="pfp"/>
+
+            <h1 style="margin-top: 0.5rem;">Cedric Nickolai T. Lim</h1>
+            <p class="low-gap">Student Programmer.</p>
+            <ul class="nav">
+                <li><a class="round-button" href="#about">About</a></li>
+                <li><a class="round-button" href="#skills">Skills</a></li>
+            </ul>
+        </div>
+        <div class="info">
+            <div class="card" id="about">
+                <h1>About</h1>
+                <p class="low-gap cardver">Hi! I'm Cedric Lim. I am 20 years old, and I am from Cagayan De Oro City. I am currently a student in Xavier University Ateneo de Cagayan. I have been an Atenean since 2022, starting from Senior High School. I was originally from Kong Hua School for 12 years, but I quickly realized after going to XU that KHS was not for me. I am currently enrolled in the BS Information Technology program, in my 3rd year.</p>
+                <p class="low-gap cardver">I became a programmer because I want to make lives easier and more efficient. Whether it be through UI design or through backend design. My lifetime goal is to be able to at least make someone's life easier through an application or program. That is one of the reasons why I took Mobile Application Development, as the mobile phone is one of the greatest sources of information in the modern age. Aside from that, I like gaming and making content on YouTube!</p>
+            </div>
+            <div class="card" id="skills">
+                <h1>Skills</h1>
+                <div class="skill-card">
+                    <h4>Programmer at Heart</h4>
+                    <p>I've been programming since 2020. From little Minecraft mods to Multilevel Applications through Java, C#, Web, and more!</p>
+                </div>
+                <div class="skill-card">
+                    <h4>Basic Photo Editing</h4>
+                    <p>I can edit photos, but only on a basic level through PhotoPea!</p>
+                </div>
+                <div class="skill-card">
+                    <h4>Scriptwriting</h4>
+                    <p>I often write scripts for my YouTube channel in my free time, a venture that has paid off!</p>
+                </div>
+                <div class="skill-card">
+                    <h4>Basic Video Editing</h4>
+                    <p>I can also edit! Though these are mostly for documentary-type videos</p>
+                </div>
+                <div class="skill-card">
+                    <h4>I can fix your computer</h4>
+                    <p>I have always been the go-to for a lot of people who had a lot of problems with their PC. Just give me a call if ever!</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Made by Cedric Nickolai T. Lim, BSIT-3 for ITCC 41 - Mobile Applications Development</p>
+        </div>
+    </div>
+    </body>
+</html>

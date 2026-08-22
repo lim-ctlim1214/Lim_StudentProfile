@@ -1,0 +1,136 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-self: center;
+    gap: 1rem;
+    width: 90%;
+}
+
+.avatar {
+    border-radius: 60%;
+    border: 5px solid white;
+    width: 25%;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: cornflowerblue;
+    color: white;
+    padding: 16px;
+    margin-top: 1rem;
+    width: 75%;
+    font-family: system-ui;
+}
+
+.low-gap {
+    margin-top: 0;
+    line-height: 0;
+}
+
+.low-gap.cardver {
+    padding: 1rem;
+    margin-top: -14px;
+    line-height: 1;
+    text-align: justify;
+}
+
+.nav {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    gap: 0.5rem;
+}
+
+.nav li {
+    list-style: none;
+}
+
+.nav a {
+    text-decoration: none;
+    color: white;
+}
+
+.round-button {
+    padding: 0.5rem;
+    border: white solid 1px;
+    border-radius: 1rem;
+    transition: 0.2s ease-in-out;
+    transition-property: background-color, color;
+}
+.round-button:hover {
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    transition-property: background-color, color;
+}
+
+.info {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid black;
+    font-family: system-ui;
+    flex: 1;
+}
+
+.skill-card {
+    display: flex;
+    flex-direction: column;
+    padding-left: 12px;
+    padding-right: 12px;
+    border: 1px solid black;
+    width: 95%;
+    margin: 0.5rem;
+}
+
+.skill-card p {
+    margin-top: -16px;
+
+}
+
+.footer {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid black;
+    font-family: system-ui;
+    justify-content: center;
+    text-align: center;
+    flex: 1;
+    width: 100%;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+@media (max-width: 1000px) {
+    .header {
+        text-align: center;
+    }
+    .info {
+        flex-direction: column;
+    }
+}
+
+
+
