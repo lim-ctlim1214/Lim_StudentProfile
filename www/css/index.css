@@ -2,6 +2,7 @@
     box-sizing: border-box;
 }
 
+
 body {
     margin: 0;
     padding: 0;
@@ -11,7 +12,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-self: center;
+    margin: 0 auto;
     gap: 1rem;
     width: 90%;
 }
@@ -19,7 +20,7 @@ body {
 .avatar {
     border-radius: 60%;
     border: 5px solid white;
-    width: 25%;
+    width: 10%;
 }
 
 .header {
@@ -123,10 +124,54 @@ body {
     margin: 1rem;
 }
 
-@media (max-width: 1000px) {
-    .header {
-        text-align: center;
+@media (max-width: 1024px) {
+    body {
+        font-size: 24px;
     }
+    .name {
+        text-align: center;
+        font-size: 2rem;
+    }
+
+    .avatar {
+        width: 25%;
+    }
+
+    .header {
+        width: 100%;
+    }
+
+    .info {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 767px) {
+
+    body {
+        font-size: 16px;
+    }
+
+    .name {
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .avatar {
+        width: 50%;
+    }
+
+    .nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .round-button {
+        padding: 0.5rem;
+    }
+
     .info {
         flex-direction: column;
     }
