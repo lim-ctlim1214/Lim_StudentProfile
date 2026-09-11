@@ -6,6 +6,7 @@
 body {
     margin: 0;
     padding: 0;
+    font-family: system-ui;
 }
 
 .app {
@@ -15,6 +16,7 @@ body {
     margin: 0 auto;
     gap: 1rem;
     width: 90%;
+    min-height: 100%;
 }
 
 .avatar {
@@ -79,10 +81,16 @@ body {
     transition-property: background-color, color;
 }
 
+.round-button.selected {
+    background-color: white;
+    color: black;
+}
+
 .info {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    font-family: system-ui;
     gap: 1rem;
     width: 100%;
 }
@@ -104,6 +112,7 @@ body {
     border: 1px solid black;
     width: 95%;
     margin: 0.5rem;
+    text-decoration: none;
 }
 
 .skill-card p {
@@ -122,6 +131,40 @@ body {
     width: 100%;
     padding: 1rem;
     margin: 1rem;
+}
+
+.interest-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 0;
+    list-style: none;
+    gap: 1rem;
+}
+
+
+
+.interest-list li {
+    border: 1px solid black;
+    text-align: center;
+    width: 90%;
+    padding: 1rem;
+}
+
+.project {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid black;
+    text-align: center;
+    gap: 1rem;
+    background-color: #f1f1f1;
+}
+
+.project-image {
+    width: 75%;
 }
 
 @media (max-width: 1024px) {
@@ -150,11 +193,16 @@ body {
 
     body {
         font-size: 16px;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
     }
 
     .name {
         text-align: center;
         font-size: 18px;
+    }
+
+    .project-image {
+        width: 100%;
     }
 
     .avatar {
@@ -165,11 +213,27 @@ body {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 2rem;
+        width: 100%;
+        gap: 1rem;
+    }
+
+    .nav li {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        flex: 1;
     }
 
     .round-button {
+        border-radius: 0;
+        width: 100%;
+        text-align: center;
         padding: 0.5rem;
+        transition: none
+    }
+
+    .round-button:hover {
+        transition: none;
     }
 
     .info {
