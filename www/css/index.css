@@ -9,6 +9,26 @@ body {
     font-family: system-ui;
 }
 
+.overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    overflow-x: hidden;
+    z-index: 999;
+}
+
+.overlay.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
 .app {
     display: flex;
     flex-direction: column;
@@ -47,6 +67,80 @@ body {
     margin-top: -14px;
     line-height: 1;
     text-align: justify;
+}
+
+.editform {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    border-radius: 16px;
+    padding: 1rem 2rem;
+    gap: 1rem;
+    width: min(90vw, 400px);   /* cap width, but never exceed viewport */
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.form {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-button {
+    border: 1px solid black;
+    border-radius: 1rem;
+    padding: 16px;
+}
+
+.form-button:hover {
+    cursor: pointer;
+}
+
+.form-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.error-text {
+    display: none;
+}
+
+.error-text.regular {
+    display: flex;
+    color: black;
+}
+
+.error-text.error {
+    display: flex;
+    color: red;
+}
+
+.error-text.warning {
+    display: flex;
+    color: orange;
+}
+
+.form-button.pressed {
+    pointer-events: none;
+    color: #dadada;
+}
+
+.textfield {
+    border: none;
+    outline: none;
+    border-bottom: 2px solid #817878;
+    width: 100%;              /* fill the editform instead of intrinsic size */
+}
+
+.textfield.area {
+    border: 1px solid black;
+    font-family: system-ui;
+    width: 100%;
+    resize: vertical;         /* optional: stop horizontal resize too */
 }
 
 .nav {
@@ -95,6 +189,12 @@ body {
     width: 100%;
 }
 
+
+.info.index {
+    display: flex;
+    flex-direction: column;
+}
+
 .card {
     display: flex;
     flex-direction: column;
@@ -102,6 +202,7 @@ body {
     border: 1px solid black;
     font-family: system-ui;
     flex: 1;
+    padding: 1rem;
 }
 
 .skill-card {
@@ -113,6 +214,16 @@ body {
     width: 95%;
     margin: 0.5rem;
     text-decoration: none;
+}
+
+.hidden {
+    display: none;
+}
+
+.skill-card-mini {
+    border: 1px solid black;
+    padding: 0.5rem;
+    width: 95%;
 }
 
 .skill-card p {
@@ -165,6 +276,18 @@ body {
 
 .project-image {
     width: 75%;
+}
+
+@media (min-width: 1025px){
+    .info.about {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .skill-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 @media (max-width: 1024px) {
