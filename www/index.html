@@ -3,16 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
-    <title>Cedric Lim's Student Profile</title>
+    <title id="title">Cedric Lim's Student Profile</title>
     <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
+<div id="overlay" class="overlay">
+    <div class="editform">
+        <h2>Edit Profile</h2>
+        <div class="form">
+            <label for="name">Name</label>
+            <input class="textfield" id="name" type="text" placeholder="Enter your name"/>
+        </div>
+        <div class="form">
+            <label for="course">Course</label>
+            <input class="textfield" id="course" type="text" placeholder="Enter your course"/>
+        </div>
+        <div class="form">
+            <label for="year">Year Level</label>
+            <input class="textfield" style="text-align: center" id="year" type="number" min="1" max="9" step="1" value="1"/>
+        </div>
+        <div class="form">
+            <label for="aboutme">About Me</label>
+            <textarea class="textfield area" id="aboutme" rows="4" cols="50"></textarea>
+        </div>
+        <div class="form">
+            <label for="picture">Select Avatar</label>
+            <input type="file" id="picture" accept="image/*"/>
+        </div>
+
+        <div class="form">
+            <button class="form-button" onclick="submit_details()" id="submit">Save</button>
+            <button class="form-button" onclick="clearAll()" id="clear">Clear</button>
+            <button class="form-button" onclick="cancelForm()" id="cancel">Cancel</button>
+        </div>
+        <p id="errorText" class="error-text">This error is not seen. That means there is no error.</p>
+    </div>
+</div>
+<div id="skill-overlay" class="overlay">
+    <div class="editform">
+        <h2>Edit Skills</h2>
+        <div class="form-list" id="skill-list">
+            <div class="form">
+
+            </div>
+        </div>
+        <div class="form">
+            <div class="form-button" onclick="add_skill()">Add Skill</div>
+            <div class="form-button" onclick="submit_skills()">Submit Skills</div>
+            <div class="form-button" onclick="hide_skills()">Cancel</div>
+        </div>
+        <p class="error-text" id="skill-error"></p>
+    </div>
+</div>
 <div class="app">
     <div class="header">
         <img class="avatar"
-             src="assets/pfp.jpg" alt="pfp"/>
+             src="assets/defaultpfp.png" id="pfp" alt="pfp"/>
 
-        <h1 class="name">Cedric Nickolai T. Lim</h1>
+        <h1 class="name" id="name-nav">Cedric Nickolai T. Lim</h1>
         <p class="low-gap">A Student Programmer's Portfolio</p>
         <ul class="nav">
             <li><a class="round-button selected" href="index.html">Profile</a></li>
@@ -22,15 +70,33 @@
             <li><a class="round-button" href="pages/Contact.html">Contact</a></li>
         </ul>
     </div>
-    <h1>Hi! I'm Cedric Lim!</h1>
+    <h1 id="name-heading">Hi! I'm Cedric Lim!</h1>
     <div class="info index">
         <div class="card">
             <h2>Welcome to my portfolio!</h2>
-            <p class="low-gap cardver">I am a student developer learning how to program. Scroll down to see more!</p>
+            <p id="aboutElement" class="low-gap cardver">I am a student developer learning how to program. Scroll down to see more!</p>
+        </div>
+        <div class="card">
+            <h2>Basic Information</h2>
+            <div id="profile-details">
+                <ul>
+                    <li id="name-query">Name: Cedric Lim</li>
+                    <li id="course-query">Course: BSIT</li>
+                    <li id="year-query">Year Level: 3</li>
+                </ul>
+            </div>
+            <div class="form-button" onclick="edit()">Edit Me!</div>
+        </div>
+        <div class="card">
+            <h2>Skills</h2>
+            <p id="noskill" style="text-align: center">Nothing here for now. Edit to add your skills after filling out your information!</p>
+            <div id="skills" style="display: flex; flex-direction: column; width: 95%;gap: 1rem; padding: 1rem;">
+
+            </div>
+            <div class="form-button pressed" id="edit-skills" onclick="showSkills()">Edit Skills!</div>
         </div>
     </div>
     <div class="info">
-
         <a class="card index" href="pages/About.html">
             <h2>Learn more about me!</h2>
         </a>
@@ -48,5 +114,6 @@
         <p>Made by Cedric Nickolai T. Lim, BSIT-3 for ITCC 41 - Mobile Applications Development</p>
     </div>
 </div>
+<script src="js/index.js"></script>
 </body>
 </html>
