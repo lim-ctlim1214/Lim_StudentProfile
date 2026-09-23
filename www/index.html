@@ -27,16 +27,22 @@
             <textarea class="textfield area" id="aboutme" rows="4" cols="50"></textarea>
         </div>
         <div class="form">
-            <label for="picture">Select Avatar</label>
-            <input type="file" id="picture" accept="image/*"/>
-        </div>
-
-        <div class="form">
             <button class="form-button" onclick="submit_details()" id="submit">Save</button>
             <button class="form-button" onclick="clearAll()" id="clear">Clear</button>
             <button class="form-button" onclick="cancelForm()" id="cancel">Cancel</button>
         </div>
         <p id="errorText" class="error-text">This error is not seen. That means there is no error.</p>
+    </div>
+</div>
+<div id="profile-picture-overlay" class="overlay">
+    <div class="editform">
+        <h2>Select Profile Picture</h2>
+        <div id="gallery-selector" class="form-button">Select a Profile Picture from Gallery</div>
+        <input type="file" id="picture" accept="image/*" hidden/>
+        <div class="form-button" onclick="take_a_picture()">Take a Picture</div>
+        <p id="pfpText" class="error-text" style="text-align: center">Error test</p>
+        <div class="form-button" onclick="hide_pfp_overlay()">Back</div>
+
     </div>
 </div>
 <div id="skill-overlay" class="overlay">
@@ -114,6 +120,7 @@
         <p>Made by Cedric Nickolai T. Lim, BSIT-3 for ITCC 41 - Mobile Applications Development</p>
     </div>
 </div>
+<script src="cordova.js"></script>
 <script src="js/index.js"></script>
 </body>
 </html>
