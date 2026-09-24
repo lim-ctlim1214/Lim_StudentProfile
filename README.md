@@ -1,8 +1,8 @@
 # Lim_StudentProfile
-This is my 2nd activity for ITCC 41 - Mobile Applications Development. A student profile via Apache Cordova and HTML, CSS! 
+This is a collection of activities for ITCC 41 - Mobile Applications Development. A student profile via Apache Cordova and HTML, CSS! 
 
-## Last Update: 9/18/2026 - Activity 5
-- Added Profile Editing to Index Profile Page. This feature is only available for the index page.
+## Last Update: 9/24/2026 - Activity 6
+- Added PFP Camera Integration. You can now take a picture of yourself for your avatar!
 
 ## Project Description
 This is a project featuring my student profile! Now editable!
@@ -20,56 +20,51 @@ This is a project featuring my student profile! Now editable!
 - All saved information is loaded automatically on startup on both the front page and edit settings.
 - Users can also save and edit their skills! With a maximum of 6 skills editable by the user.
 
+## Camera Integration
+- Android's Camera is integrated via the ["cordova-plugin-camera"](https://github.com/apache/cordova-plugin-camera/tree/master) plugin. It asks for permission from your device to capture an image for you to use in your avatar for the student profile.
 
-## UI/UX Principles Applied
-- Responsive Layout: Through Flexboxes and Media Queries, the experience is seamless throughout Desktop, Tablet and Mobile.
-- Mobile-Friendly Spacing: Spacing is consistent and balanced. Not too much, not too little.
-- Appropriate Typography: Fonts are changed depending on the device's width. 
-- Clear Visual Hierarchy: Mobile users on Portrait Mode follow a vertical hierarchy. Allowing for a smooth and consistent visual hierarchy.
-- Usable Controls: Navigation Buttons are either vertical or horizontal and fully functional on mobile devices.
-- Basic Accessibility: Users who have a harder time reading should have an easier time with dynamic typography.
-- Consistent Design: Both Desktop and Mobile feature a consistent design, with the design language remaining the same across devices.
+## Device Feature Integration
+- Cordova is used to access the camera because apps built with Apache Cordova are not fully native. Cordova adds this functionality so that all apps built with Cordova can use the same camera plugin without changing the code.
 
-## JavaScript Functionality
-- JavaScript is used to validate, handle and update profiles.
-- Using DOM Manipulation, elements are easily updateable, this is how JS updates the frontend HTML page.
-- DOM also helps attain all information from the different elements of the page. This is how forms are validated in this codebase.
-- localStorage is also utilized to store crucial information about the system.
-- JSON parsing and Arrays are also utilized to store different elements and pieces of data.
+## Image Handling
+- Camera Functionality is handled by the take_a_picture method. The method pulls up the camera and has 2 routes. The first route on success saves the image as an attribute in localStorage via the "PFP" entity. If it fails, it shows an error message, and keeps the old profile picture.
 
-## Local Data Storage
-- localStorage stores 3 elements: Existing Profile Details, Skills Saved and the Avatar.
-- JavaScript makes the existing profile details and skills saved into JSON strings, which are parsed back when information needs to be retrieved.
-- The Profile Picture is stored in a BASE64 string. Because of this, images are limited in storage, and file formats.
+## Error Handling
+- When permissions are denied, it will show an error message saying permissions weren't granted.
+- If it's cancelled, a similar error message will appear.
+- Same with other errors, similar error messages will appear.
 
 ## Responsive Design
 I applied basic principles like flexboxes, media queries, and the meta tag in making the design responsive. For phones and tablets in portrait mode, the app is more vertical, but for landscape mode, users can read in a landscape orientation.
 
-
 ## How to Run
+Before building the application, the cordova camera plugin must be installed.
+- cordova plugin add cordova-plugin-camera: This command installs the camera plugin.
+- This command should automatically modify the package.json file.
+
 There are 2 necessary commands needed to run this application:
 - cordova build android: Builds the Application for Android Devices
 - cordova run android: Runs the Application for Android Devices.
 
 These commands must be run in the terminal, and Android Studio must be open, with a device in operation before cordova run android is ran.
 
-## Application Screenshots - Activity 5
+## Application Screenshots - Activity 6
 
-### Student Profile Page with Default Profile Picture
-<img width="510" height="816" alt="image" src="https://github.com/user-attachments/assets/817776b5-0e51-44a9-b0b9-4dd3d2a9feca" />
+### Student Profile Page with Previously Set Profile Picture (Activity 5)
+<img width="353" height="710" alt="image" src="https://github.com/user-attachments/assets/ecb2d004-d91f-49d8-ae3c-9b699e981e65" />
 
-### Edit Profile
-<img width="516" height="828" alt="image" src="https://github.com/user-attachments/assets/fae2123c-9cd7-4abc-819a-d4d3f137a01e" />
+### Change Profile Picture
+<img width="444" height="913" alt="image" src="https://github.com/user-attachments/assets/aa8e386e-8c64-4518-98c4-5e188e33660d" />
 
-### Edit Skills
-<img width="510" height="817" alt="image" src="https://github.com/user-attachments/assets/2ca98c90-4065-4a96-b1e1-b7abab210729" />
+### Camera
+<img width="461" height="908" alt="image" src="https://github.com/user-attachments/assets/c11e010c-223f-496e-9b6a-fbcd123063b9" />
+
+### Captured Image
+<img width="468" height="908" alt="image" src="https://github.com/user-attachments/assets/24f81ace-6787-4135-8927-4582b2cc0c49" />
+
+### Updated Profile Picture
+<img width="424" height="902" alt="image" src="https://github.com/user-attachments/assets/aabd4cd2-a7cf-4705-aabc-640972d26b0a" />
 
 
-### Updated Profile
-<img width="508" height="820" alt="image" src="https://github.com/user-attachments/assets/bfd641a6-3032-42c2-9c42-23e19ae44db0" />
-<img width="509" height="763" alt="image" src="https://github.com/user-attachments/assets/b21fad23-a4a7-4771-930e-2d1bdf0bb829" />
-
-### Contacts Page
-<img width="420" height="907" alt="image" src="https://github.com/user-attachments/assets/e6770671-3827-4d37-bf0b-1e34963be220" />
 
 
