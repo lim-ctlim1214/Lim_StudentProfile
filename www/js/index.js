@@ -34,7 +34,25 @@ text_codes = {
     8: {
         "message": "You can only have a maximum of 6 skills.",
         "class": "error"
+    },
+    9: {
+        "message": "You need to set your other profile details before setting your image.",
+        "class": "error"
+    },
+    10 : {
+        "message": "Camera Fail",
+        "class": "error"
+    },
+    11: {
+        "message": "Unable to access the camera. Please check your device permissions.",
+        "class": "error"
     }
+}
+
+document.addEventListener('deviceready', onDeviceReady, false);
+
+function onDeviceReady(){
+    console.log("Device is ready.")
 }
 
 const name = document.getElementById("name");
@@ -49,6 +67,7 @@ const cancel = document.getElementById("cancel");
 const overlay = document.getElementById("overlay");
 const skilloverlay = document.getElementById("skill-overlay");
 const skillbutton = document.getElementById("edit-skills");
+const pfpText = document.getElementById("pfpText");
 
 forms_and_texts = [
     name,
@@ -61,6 +80,85 @@ function edit(){
     overlay.classList.add("show")
 }
 
+const pfp_overlay = document.getElementById("profile-picture-overlay")
+
+pfp.addEventListener("click",function(e){
+    pfp_overlay.classList.add("show");
+})
+
+function hide_pfp_overlay(){
+    pfp_overlay.classList.remove("show");
+}
+
+function take_a_picture(){
+    if (unloaded){
+        set_error_pfp(9)
+    } else {
+        navigator.camera.getPicture(onSuccess, onFail, {
+            quality: 50,
+            destinationType: Camera.DestinationType.DATA_URL,
+             sourceType: Camera.PictureSourceType.CAMERA,
+             encodingType: Camera.EncodingType.JPEG,
+             mediaType: Camera.MediaType.PICTURE,
+             allowEdit: false,
+             correctOrientation: true
+        })
+
+    }
+}
+
+function onSuccess(imageData) {
+
+     localStorage.setItem("PFP", imageData);
+     setElementsInPage()
+}
+
+function onFail(message){
+    if (msg = "20"){
+        set_error_pfp(11);
+        return
+    }
+    set_errormessage_pfp(message);
+}
+
+function set_error_pfp(code){
+    pfpText.className = 'error-text';
+    pfpText.textContent = text_codes[code].message;
+    pfpText.classList.add(text_codes[code].class)
+}
+
+function set_errormessage_pfp(message){
+    pfpText.className = 'error-text';
+    pfpText.textContent = message;
+    pfpText.classList.add("error")
+}
+
+const gallerySelector = document.getElementById("gallery-selector");
+gallerySelector.addEventListener("click", () => {
+    if (unloaded){
+        set_error_pfp(9)
+    } else {
+        picFileChooser.click()
+    }
+})
+
+picFileChooser.addEventListener("change", () => {
+    const pfpUploaded = picFileChooser.files[0];
+    if (pfpUploaded) {
+        select_from_gallery(pfpUploaded);
+    } else {
+        localStorage.setItem("PFP", "assets/defaultpfp.png")
+    }
+})
+
+async function select_from_gallery(file){
+    try {
+        await saveProfilePic(file);
+        setElementsInPage()
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 async function submit_details(){
 
@@ -79,18 +177,6 @@ async function submit_details(){
     if (year.value < 1){
         set_error_code(6)
         return;
-    }
-
-    const pfpUploaded = picFileChooser.files[0];
-    if (pfpUploaded) {
-        try {
-            await saveProfilePic(pfpUploaded);
-        } catch (error) {
-            set_error_code(7);
-            return;
-        }
-    } else {
-        localStorage.setItem("PFP", "assets/defaultpfp.png")
     }
 
     let profile_details = {
@@ -126,10 +212,11 @@ function saveProfilePic(file) {
 
 activeSkillElements = []
 
+let unloaded = true
+
 function setElementsInPage(){
     let element_profile_details = JSON.parse(localStorage.getItem("profile_details"));
     let skill_details = JSON.parse(localStorage.getItem("saved_skills"));
-    if (element_profile_details.name === null) return;
     document.getElementById("name-nav").innerHTML = `${element_profile_details.name}`;
     document.getElementById("name-heading").innerHTML = `Hi! I'm ${element_profile_details.name}!`;
     document.getElementById("name-query").innerHTML = `Name: ${element_profile_details.name}`;
@@ -142,10 +229,14 @@ function setElementsInPage(){
     course.value = element_profile_details.course;
     year.value = element_profile_details.year;
     aboutme.value = element_profile_details.about;
-    pfp.src = localStorage.getItem("PFP");
+
+    if (localStorage.getItem("PFP") !== null) pfp.src = localStorage.getItem("PFP");
 
     formsubmit.classList.remove("pressed")
     cancel.classList.remove("pressed")
+
+    unloaded = false;
+
     if (skill_details === null) {
         skillbutton.classList.remove("pressed")
         return;
@@ -192,7 +283,6 @@ function clearAll(){
     for (const form of forms_and_texts){
         form.value = "";
     }
-    picFileChooser.value = ""
     set_error_code(3);
 }
 
