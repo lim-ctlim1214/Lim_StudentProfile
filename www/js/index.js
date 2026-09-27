@@ -51,9 +51,163 @@ text_codes = {
 
 document.addEventListener('deviceready', onDeviceReady, false);
 
-function onDeviceReady(){
-    console.log("Device is ready.")
+let db;
+let currentStudentId = null;
+
+function onDeviceReady() {
+  db = window.sqlitePlugin.openDatabase({ name: 'profile.db', location: 'default' });
+  db.executeSql('PRAGMA foreign_keys = ON;');
+  createTables();
+  checkLoginState();
 }
+
+function createTables() {
+  db.transaction(function(tx) {
+    tx.executeSql(`CREATE TABLE IF NOT EXISTS Student(
+      ID INTEGER PRIMARY KEY,
+      Name TEXT,
+      Course TEXT,
+      YearLevel INT,
+      AboutMe TEXT,
+      PFP TEXT
+    )`);
+  }, function(err) {
+    console.log('Student table error:', err.message);
+  });
+
+  db.transaction(function(tx) {
+    tx.executeSql(`CREATE TABLE IF NOT EXISTS Student_Skills(
+      StudentID INTEGER,
+      SkillID INTEGER,
+      Detail TEXT,
+      PRIMARY KEY (StudentID, SkillID),
+      FOREIGN KEY (StudentID) REFERENCES Student(ID)
+    )`);
+  }, function(err) {
+    console.log('Student_Skills table error:', err.message);
+  });
+
+  db.transaction(function(tx) {
+    tx.executeSql(`CREATE TABLE IF NOT EXISTS Users(
+      StudentID INTEGER PRIMARY KEY,
+      PasswordHash TEXT,
+      Salt TEXT,
+      FOREIGN KEY (StudentID) REFERENCES Student(ID)
+    )`);
+  }, function(err) {
+    console.log('Users table error:', err.message);
+  });
+}
+
+async function hashPassword(password, salt) {
+  const enc = new TextEncoder();
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(password),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits']
+  );
+
+  const derivedBits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: enc.encode(salt),
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    256
+  );
+
+  return Array.from(new Uint8Array(derivedBits))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function generateSalt() {
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function isLoggedIn() {
+  return localStorage.getItem('loggedInId') !== null;
+}
+
+function getLoggedInId() {
+  return localStorage.getItem('loggedInId');
+}
+
+function checkLoginState() {
+  if (isLoggedIn()) {
+    document.getElementById('login-page').classList.add('hide');
+    loadStudentFromDB(getLoggedInId());
+  }
+}
+
+async function login() {
+  const studentId = document.getElementById('username').value;
+  const passwordAttempt = document.getElementById('password').value;
+
+  if (studentId === "" || passwordAttempt === "") {
+    showLoginError("Please enter both Student ID and Password.");
+    return;
+  }
+
+  db.transaction(tx => {
+    tx.executeSql(
+      'SELECT PasswordHash, Salt FROM Users WHERE StudentID = ?',
+      [studentId],
+      async (tx, results) => {
+        if (results.rows.length === 0) {
+          showLoginError("Invalid student ID or password.");
+          return;
+        }
+        const row = results.rows.item(0);
+        const attemptHash = await hashPassword(passwordAttempt, row.Salt);
+
+        if (attemptHash === row.PasswordHash) {
+          localStorage.setItem('loggedInId', studentId);
+          document.getElementById('login-page').classList.add('hide');
+          loadStudentFromDB(studentId);
+        } else {
+          showLoginError("Invalid student ID or password.");
+        }
+      },
+      (tx, err) => {
+        console.log('Login query error:', err.message);
+        showLoginError("Unable to retrieve your profile. Please try again.");
+      }
+    );
+  });
+}
+
+function skipLogin() {
+  // Convenience for testing — bypasses auth, uses seed student (ID 1)
+  localStorage.setItem('loggedInId', '1');
+  document.getElementById('login-page').classList.add('hide');
+  loadStudentFromDB('1');
+}
+
+function showLoginError(msg) {
+  let el = document.getElementById('login-error');
+  if (!el) {
+    el = document.createElement('p');
+    el.id = 'login-error';
+    el.style.color = 'red';
+    document.querySelector('.login-form').appendChild(el);
+  }
+  el.textContent = msg;
+}
+
+function logout() {
+  localStorage.removeItem('loggedInId');
+  location.reload();
+}
+
+// ---------- DOM refs ----------
 
 const name = document.getElementById("name");
 const course = document.getElementById("course");
@@ -90,6 +244,8 @@ function hide_pfp_overlay(){
     pfp_overlay.classList.remove("show");
 }
 
+let unloaded = true;
+
 function take_a_picture(){
     if (unloaded){
         set_error_pfp(9)
@@ -103,18 +259,119 @@ function take_a_picture(){
              allowEdit: false,
              correctOrientation: true
         })
-
     }
 }
 
-function onSuccess(imageData) {
+function showSignup() {
+  document.getElementById('login-form').classList.add('hidden');
+  document.getElementById('signup-form').classList.remove('hidden');
+}
 
-     localStorage.setItem("PFP", imageData);
-     setElementsInPage()
+function showLoginForm() {
+  document.getElementById('signup-form').classList.add('hidden');
+  document.getElementById('login-form').classList.remove('hidden');
+}
+
+function showSignupError(msg) {
+  document.getElementById('signup-error').textContent = msg;
+}
+
+function delete_skill(skillId) {
+  if (!confirm("Delete this skill?")) return;
+
+  db.transaction(tx => {
+    tx.executeSql(
+      'DELETE FROM Student_Skills WHERE StudentID = ? AND SkillID = ?',
+      [currentStudentId, skillId]
+    );
+  }, err => {
+    console.log('Delete skill error:', err.message);
+  }, () => {
+    loadSkillsFromDB(currentStudentId); // refresh the list
+  });
+}
+async function signup() {
+  const id = document.getElementById('signup-id').value;
+  const name = document.getElementById('signup-name').value;
+  const password = document.getElementById('signup-password').value;
+  const confirm = document.getElementById('signup-confirm').value;
+
+  if (id === "" || name === "" || password === "" || confirm === "") {
+    showSignupError("All fields are required.");
+    return;
+  }
+
+  if (password !== confirm) {
+    showSignupError("Passwords do not match.");
+    return;
+  }
+
+  if (password.length < 6) {
+    showSignupError("Password must be at least 6 characters.");
+    return;
+  }
+
+
+  db.transaction(tx => {
+    tx.executeSql(
+      'SELECT StudentID FROM Users WHERE StudentID = ?',
+      [id],
+      async (tx, results) => {
+        if (results.rows.length > 0) {
+          showSignupError("That Student ID is already registered.");
+          return;
+        }
+
+        const salt = generateSalt();
+        const hash = await hashPassword(password, salt);
+
+        db.transaction(tx2 => {
+          tx2.executeSql(
+            'INSERT INTO Student (ID, Name, Course, YearLevel, AboutMe, PFP) VALUES (?, ?, ?, ?, ?, ?)',
+            [id, name, '', 1, '', null]
+          );
+          tx2.executeSql(
+            'INSERT INTO Users (StudentID, PasswordHash, Salt) VALUES (?, ?, ?)',
+            [id, hash, salt]
+          );
+        }, err => {
+          console.log('Signup error:', err.message);
+          showSignupError("Unable to create account. Please try again.");
+        }, () => {
+
+          localStorage.setItem('loggedInId', id);
+          document.getElementById('login-page').classList.add('hide');
+          loadStudentFromDB(id);
+        });
+      },
+      (tx, err) => {
+        console.log('Signup check error:', err.message);
+        showSignupError("Unable to create account. Please try again.");
+      }
+    );
+  });
+}
+
+function onSuccess(imageData) {
+    const dataURL = imageData.startsWith("data:")
+        ? imageData
+        : "data:image/jpeg;base64," + imageData;
+
+    db.transaction(tx => {
+        tx.executeSql(
+            'UPDATE Student SET PFP = ? WHERE ID = ?',
+            [dataURL, currentStudentId],
+            () => loadStudentFromDB(currentStudentId),
+            (tx, err) => {
+                console.log('PFP update error:', err.message);
+                set_errormessage_pfp("Unable to update your profile.");
+            }
+        );
+    });
 }
 
 function onFail(message){
-    if (msg = "20"){
+    if (message === "20"){
         set_error_pfp(11);
         return
     }
@@ -146,19 +403,38 @@ picFileChooser.addEventListener("change", () => {
     const pfpUploaded = picFileChooser.files[0];
     if (pfpUploaded) {
         select_from_gallery(pfpUploaded);
-    } else {
-        localStorage.setItem("PFP", "assets/defaultpfp.png")
     }
 })
 
 async function select_from_gallery(file){
     try {
         await saveProfilePic(file);
-        setElementsInPage()
-    } catch (error) {
-        console.log(error)
+        loadStudentFromDB(currentStudentId);
+    } catch (err) {
+        console.log(err)
+        set_errormessage_pfp("Unable to update your profile.");
     }
 }
+
+function saveProfilePic(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataURL = event.target.result;
+      db.transaction(tx => {
+        tx.executeSql(
+          'UPDATE Student SET PFP = ? WHERE ID = ?',
+          [dataURL, currentStudentId],
+          () => resolve(),
+          (tx, err) => reject(err)
+        );
+      });
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
 
 async function submit_details(){
 
@@ -190,79 +466,24 @@ async function submit_details(){
     cancel.classList.add("pressed")
     set_error_code(2);
     await save_details(profile_details);
-    setElementsInPage()
 }
 
-function saveProfilePic(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const dataURL = event.target.result;
-            try {
-                localStorage.setItem("PFP", dataURL);
-                resolve();
-            } catch (error) {
-                reject(error);
-            }
-        };
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-    });
-}
-
-activeSkillElements = []
-
-let unloaded = true
-
-function setElementsInPage(){
-    let element_profile_details = JSON.parse(localStorage.getItem("profile_details"));
-    let skill_details = JSON.parse(localStorage.getItem("saved_skills"));
-    document.getElementById("name-nav").innerHTML = `${element_profile_details.name}`;
-    document.getElementById("name-heading").innerHTML = `Hi! I'm ${element_profile_details.name}!`;
-    document.getElementById("name-query").innerHTML = `Name: ${element_profile_details.name}`;
-    document.getElementById("aboutElement").innerHTML = `${element_profile_details.about}`;
-    document.getElementById("course-query").innerHTML = `Course: ${element_profile_details.course}`;
-    document.getElementById("year-query").innerHTML = `Year: ${element_profile_details.year}`;
-    document.getElementById("title").innerHTML = `${element_profile_details.name}'s Student Profile`;
-
-    name.value = element_profile_details.name;
-    course.value = element_profile_details.course;
-    year.value = element_profile_details.year;
-    aboutme.value = element_profile_details.about;
-
-    if (localStorage.getItem("PFP") !== null) pfp.src = localStorage.getItem("PFP");
-
-    formsubmit.classList.remove("pressed")
-    cancel.classList.remove("pressed")
-
-    unloaded = false;
-
-    if (skill_details === null) {
-        skillbutton.classList.remove("pressed")
-        return;
-    }
-    skillbutton.classList.remove("pressed")
-
-    activeSkillElements.forEach(element => {
-        element.remove();
-    })
-
-    activeSkillForms.forEach(form => {
-        form.remove();
-    })
-
-    skills_added = 0;
-
-    const skill_page = document.getElementById("skills");
-    for (const skill of skill_details){
-        let skillEl = document.createElement("div")
-        skillEl.classList.add("skill-card-mini")
-        skillEl.innerHTML = `<b>${skill}</b>`;
-        skill_page.appendChild(skillEl);
-        add_skill_form(skill)
-        activeSkillElements.push(skillEl);
-    }
-    document.getElementById("noskill").classList.add("hidden");
+async function save_details(profile_details) {
+  db.transaction(tx => {
+    tx.executeSql(
+      'UPDATE Student SET Name = ?, Course = ?, YearLevel = ?, AboutMe = ? WHERE ID = ?',
+      [profile_details.name, profile_details.course, profile_details.year, profile_details.about, currentStudentId],
+      () => {
+        overlay.classList.remove("show");
+        set_error_code(4);
+        loadStudentFromDB(currentStudentId);
+      },
+      (tx, err) => {
+        console.log('Update error:', err.message);
+        set_errormessage_pfp("Unable to update your profile.");
+      }
+    );
+  });
 }
 
 function cancelForm(){
@@ -271,12 +492,6 @@ function cancelForm(){
 
 function showSkills(){
     skilloverlay.classList.add("show")
-}
-
-async function save_details(profile_details){
-    localStorage.setItem("profile_details", JSON.stringify(profile_details));
-    overlay.classList.remove("show")
-    set_error_code(4);
 }
 
 function clearAll(){
@@ -300,25 +515,105 @@ function set_skill_error(code){
     skill_error.classList.add(text_codes[code].class)
 }
 
+function loadStudentFromDB(studentId) {
+  db.transaction(tx => {
+    tx.executeSql(
+      'SELECT * FROM Student WHERE ID = ?',
+      [studentId],
+      (tx, results) => {
+        if (results.rows.length === 0) {
+            set_errormessage_pfp("Unable to retrieve your profile. Please try again.");
+            return;
+        }
+        const student = results.rows.item(0);
+        currentStudentId = studentId;
+        renderStudent(student);
+        loadSkillsFromDB(studentId);
+      },
+      (tx, err) => {
+        console.log('Load error:', err.message);
+        set_errormessage_pfp("Unable to retrieve your profile. Please try again.");
+      }
+    );
+  });
+}
+
+function renderStudent(student) {
+  document.getElementById("name-nav").innerHTML = student.Name;
+  document.getElementById("name-heading").innerHTML = `Hi! I'm ${student.Name}!`;
+  document.getElementById("name-query").innerHTML = `Name: ${student.Name}`;
+  document.getElementById("aboutElement").innerHTML = student.AboutMe;
+  document.getElementById("course-query").innerHTML = `Course: ${student.Course}`;
+  document.getElementById("year-query").innerHTML = `Year: ${student.YearLevel}`;
+  document.getElementById("title").innerHTML = `${student.Name}'s Student Profile`;
+
+  name.value = student.Name;
+  course.value = student.Course;
+  year.value = student.YearLevel;
+  aboutme.value = student.AboutMe;
+
+  if (student.PFP) pfp.src = student.PFP;
+
+  formsubmit.classList.remove("pressed");
+  cancel.classList.remove("pressed");
+  skillbutton.classList.remove("pressed");
+  unloaded = false;
+}
+
+// ---------- Skills (CRUD) ----------
+
+activeSkillElements = []
+activeSkillForms = []
+let skillforms = []
 let skills_added = 0;
 const MAX_SKILLS = 6;
 const skillist = document.getElementById("skill-list");
 
-let skillforms = [
+function loadSkillsFromDB(studentId) {
+  db.transaction(tx => {
+    tx.executeSql(
+      'SELECT * FROM Student_Skills WHERE StudentID = ? ORDER BY SkillID',
+      [studentId],
+      (tx, results) => {
+        activeSkillElements.forEach(el => el.remove());
+        activeSkillElements = [];
 
-]
+        const skill_page = document.getElementById("skills");
+        const len = results.rows.length;
+
+        if (len === 0) {
+          document.getElementById("noskill").classList.remove("hidden");
+          return;
+        }
+        document.getElementById("noskill").classList.add("hidden");
+
+        for (let i = 0; i < len; i++) {
+          const row = results.rows.item(i);
+          let skillEl = document.createElement("div");
+          skillEl.classList.add("skill-card-mini");
+          skillEl.style.display = "flex";
+          skillEl.style.justifyContent = "space-between";
+          skillEl.style.alignItems = "center";
+          skillEl.innerHTML = `
+            <b>${row.Detail}</b>
+            <span style="cursor:pointer; color:red;" onclick="delete_skill(${row.SkillID})">✕</span>
+          `;
+          skill_page.appendChild(skillEl);
+          activeSkillElements.push(skillEl);
+        }
+      },
+      (tx, err) => console.log('Skill load error:', err.message)
+    );
+  });
+}
 
 function add_skill(){
     if (skills_added >= MAX_SKILLS){
         set_skill_error(8);
         return;
     }
-
     add_skill_form("")
-
 }
-
-activeSkillForms = []
 
 function add_skill_form(skill){
     let newskillform = document.createElement("div");
@@ -349,13 +644,23 @@ function submit_skills(){
         actual_skills.push(form.value);
     }
 
-    localStorage.setItem("saved_skills", JSON.stringify(actual_skills));
-    setElementsInPage()
-    hide_skills()
+    db.transaction(tx => {
+        tx.executeSql('DELETE FROM Student_Skills WHERE StudentID = ?', [currentStudentId]);
+        actual_skills.forEach((skill, index) => {
+            tx.executeSql(
+                'INSERT INTO Student_Skills (StudentID, SkillID, Detail) VALUES (?, ?, ?)',
+                [currentStudentId, index + 1, skill]
+            );
+        });
+    }, err => {
+        console.log('Skill save error:', err.message);
+        set_skill_error(8); // reuse a visible error slot; adjust message if desired
+    }, () => {
+        loadSkillsFromDB(currentStudentId);
+        hide_skills();
+    });
 }
 
 function hide_skills(){
     skilloverlay.classList.remove("show")
 }
-
-setElementsInPage()

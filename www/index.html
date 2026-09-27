@@ -7,6 +7,27 @@
     <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
+<div id="login-page" class="login">
+    <div class="login-form" id="login-form">
+        <h1>Login</h1>
+        <input class="textfield" type="text" id="username" placeholder="Student ID">
+        <input class="textfield" type="password" id="password" placeholder="Password">
+        <div class="login-button" onclick="login()">Login</div>
+        <p style="cursor:pointer; text-decoration: underline;" onclick="showSignup()">Create an account</p>
+
+    </div>
+
+    <div class="login-form hidden" id="signup-form">
+        <h2>Sign Up</h2>
+        <input class="textfield" type="text" id="signup-id" placeholder="Student ID (number)">
+        <input class="textfield" type="text" id="signup-name" placeholder="Full Name">
+        <input class="textfield" type="password" id="signup-password" placeholder="Password">
+        <input class="textfield" type="password" id="signup-confirm" placeholder="Confirm Password">
+        <div class="login-button" onclick="signup()">Sign Up</div>
+        <div class="login-button" onclick="showLoginForm()">Back to Login</div>
+        <p id="signup-error" style="color:red"></p>
+    </div>
+</div>
 <div id="overlay" class="overlay">
     <div class="editform">
         <h2>Edit Profile</h2>
@@ -74,6 +95,7 @@
             <li><a class="round-button" href="pages/Skills.html">Skills</a></li>
             <li><a class="round-button" href="pages/Projects.html">Projects</a></li>
             <li><a class="round-button" href="pages/Contact.html">Contact</a></li>
+            <li><a class="round-button" onclick="logout()">Logout</a></li>
         </ul>
     </div>
     <h1 id="name-heading">Hi! I'm Cedric Lim!</h1>
