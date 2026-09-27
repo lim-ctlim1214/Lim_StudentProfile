@@ -276,6 +276,20 @@ function showSignupError(msg) {
   document.getElementById('signup-error').textContent = msg;
 }
 
+function delete_skill(skillId) {
+  if (!confirm("Delete this skill?")) return;
+
+  db.transaction(tx => {
+    tx.executeSql(
+      'DELETE FROM Student_Skills WHERE StudentID = ? AND SkillID = ?',
+      [currentStudentId, skillId]
+    );
+  }, err => {
+    console.log('Delete skill error:', err.message);
+  }, () => {
+    loadSkillsFromDB(currentStudentId); // refresh the list
+  });
+}
 async function signup() {
   const id = document.getElementById('signup-id').value;
   const name = document.getElementById('signup-name').value;
@@ -577,7 +591,13 @@ function loadSkillsFromDB(studentId) {
           const row = results.rows.item(i);
           let skillEl = document.createElement("div");
           skillEl.classList.add("skill-card-mini");
-          skillEl.innerHTML = `<b>${row.Detail}</b>`;
+          skillEl.style.display = "flex";
+          skillEl.style.justifyContent = "space-between";
+          skillEl.style.alignItems = "center";
+          skillEl.innerHTML = `
+            <b>${row.Detail}</b>
+            <span style="cursor:pointer; color:red;" onclick="delete_skill(${row.SkillID})">✕</span>
+          `;
           skill_page.appendChild(skillEl);
           activeSkillElements.push(skillEl);
         }
